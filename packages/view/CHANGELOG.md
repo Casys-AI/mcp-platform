@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-09-18
+
+### Fixed
+
+- Update docs to the renamed `@casys/mcp-platform` framework. No code changes.
+
 ## [0.9.4] - 2026-09-18
 
 ### Fixed
