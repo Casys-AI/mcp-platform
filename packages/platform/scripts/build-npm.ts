@@ -61,7 +61,7 @@ const packageJson = {
   license: "MIT",
   repository: {
     type: "git",
-    url: "https://github.com/Casys-AI/mcp-platform",
+    url: "git+https://github.com/Casys-AI/mcp-platform.git",
   },
   keywords: [
     "mcp",
