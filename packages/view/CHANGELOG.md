@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-09-18
+
+### Fixed
+
+- Update npm `repository` metadata to the renamed `Casys-AI/mcp-platform` repository. No code
+  changes.
+
 ## [0.9.3] - 2026-09-04
 
 ### Changed
