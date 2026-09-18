@@ -22,6 +22,7 @@ rate-limit → auth → custom middleware → scope-check → validation → bac
 | Package                                                   | Status         | Description                                                                  |
 | --------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------- |
 | [`@casys/mcp-platform`](packages/platform/)               | **Production** | The framework. Middleware, auth, dual transport, observability.              |
+| [`@casys/mcp-server`](packages/server/)                   | **Deprecated** | Alias re-exporting the framework. Use `@casys/mcp-platform`.                 |
 | [`@casys/mcp-compose`](packages/compose/)                 | Experimental   | Multi-server UI composition — sync and orchestrate MCP Apps into dashboards. |
 | [`@casys/mcp-bridge`](packages/bridge/)                   | Experimental   | Bridge MCP Apps UIs and private-network tool calls across hosts and relays.  |
 | [`@casys/mcp-view-contracts`](packages/view-contracts/)   | Experimental   | Dependency-free App/resource, composition, and session contracts.            |
@@ -183,6 +184,7 @@ Deno workspace — cross-package imports resolve automatically.
 ```bash
 # Run tests (per package)
 cd packages/platform && deno task test
+cd packages/server && deno task test
 cd packages/compose && deno task test
 cd packages/bridge && deno task test
 cd packages/view-contracts && deno task test
