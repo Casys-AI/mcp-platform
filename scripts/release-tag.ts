@@ -11,11 +11,19 @@
  *   deno task release:tag    (from inside packages/<pkg>/)
  *   deno run -A scripts/release-tag.ts <pkg>
  *
- * Where <pkg> is one of: server, compose, bridge, view, view-components,
- * platform.
+ * Where <pkg> is one of: server, compose, bridge, view, view-contracts,
+ * view-components, platform.
  */
 
-const PACKAGES = ["server", "compose", "bridge", "view", "view-components", "platform"] as const;
+const PACKAGES = [
+  "server",
+  "compose",
+  "bridge",
+  "view",
+  "view-contracts",
+  "view-components",
+  "platform",
+] as const;
 type Pkg = (typeof PACKAGES)[number];
 
 const repoRoot = new URL("..", import.meta.url).pathname;

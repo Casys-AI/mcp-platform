@@ -12,6 +12,7 @@ on:
       - "compose-v*"
       - "bridge-v*"
       - "view-v*"
+      - "view-contracts-v*"
       - "view-components-v*"
       - "platform-v*"
 

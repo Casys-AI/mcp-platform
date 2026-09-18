@@ -69,6 +69,9 @@ const packageJson = JSON.parse(
   await Deno.readTextFile(packageJsonPath),
 ) as Record<string, unknown>;
 packageJson.main = "./esm/mod.js";
+// ESM-only output (scriptModule: false): without this, Node <20.19 parses
+// esm/*.js as CommonJS and every import breaks (engines floor is >=20).
+packageJson.type = "module";
 packageJson.types = "./esm/mod.d.ts";
 packageJson.exports = {
   ".": {
