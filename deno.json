@@ -1,6 +1,7 @@
 {
   "license": "MIT",
   "workspace": [
+    "./packages/platform",
     "./packages/server",
     "./packages/compose",
     "./packages/bridge",

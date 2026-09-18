@@ -36,7 +36,7 @@ await build({
     license: "MIT",
     repository: {
       type: "git",
-      url: "git+https://github.com/Casys-AI/mcp-server.git",
+      url: "git+https://github.com/Casys-AI/mcp-platform.git",
     },
     keywords: [
       "mcp",

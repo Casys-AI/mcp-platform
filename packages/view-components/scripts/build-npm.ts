@@ -35,7 +35,7 @@ await build({
     version: denoJson.version,
     description: "Optional light-first component runtime for small composable MCP App viewers",
     license: "MIT",
-    repository: { type: "git", url: "https://github.com/Casys-AI/mcp-server" },
+    repository: { type: "git", url: "https://github.com/Casys-AI/mcp-platform" },
     keywords: ["mcp", "model-context-protocol", "mcp-apps", "components", "preact"],
   },
   compilerOptions: { lib: ["ES2022", "DOM", "DOM.Iterable"], target: "ES2022" },

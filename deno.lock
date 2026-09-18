@@ -1033,6 +1033,12 @@
           "npm:jose@6"
         ]
       },
+      "packages/platform": {
+        "dependencies": [
+          "jsr:@casys/mcp-server@0.27",
+          "jsr:@std/assert@1"
+        ]
+      },
       "packages/server": {
         "dependencies": [
           "jsr:@deno/dnt@0.41",

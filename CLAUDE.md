@@ -5,8 +5,11 @@ code in this repository.
 
 ## Project Overview
 
-This is a **monorepo** containing 6 packages that form the Casys MCP Platform:
+This is a **monorepo** containing 7 packages that form the Casys MCP Platform:
 
+- **`@casys/mcp-platform`** (`packages/platform/`) — Umbrella entry that
+  re-exports the framework under the platform name. No API of its own.
+  **Server-side.**
 - **`@casys/mcp-server`** (`packages/server/`) — A production-grade framework
   for building MCP (Model Context Protocol) servers in TypeScript. Think "Hono
   for MCP". Built on the official `@modelcontextprotocol/sdk`, it adds
@@ -27,8 +30,8 @@ This is a **monorepo** containing 6 packages that form the Casys MCP Platform:
 - **`@casys/mcp-bridge`** (`packages/bridge/`) — Bridge layer for connecting MCP
   servers to external systems and protocols. **Server-side.**
 
-The server/compose/bridge packages target Deno + Node (dual-publish); view and
-view-components target browsers via bundler (esbuild recommended — see
+The platform/server/compose/bridge packages target Deno + Node (dual-publish);
+view and view-components target browsers via bundler (esbuild recommended — see
 `packages/view/examples/basic/build.ts`).
 
 All packages are published to both **JSR** (`jsr:@casys/<package>`) and **npm**
@@ -37,9 +40,10 @@ All packages are published to both **JSR** (`jsr:@casys/<package>`) and **npm**
 ## Monorepo Structure
 
 ```
-mcp-server/                  # repo root (Deno workspace)
+mcp-platform/               # repo root (Deno workspace)
 ├── deno.json                # workspace config, lists all member packages
 ├── packages/
+│   ├── platform/            # @casys/mcp-platform (umbrella, re-exports server)
 │   ├── server/              # @casys/mcp-server
 │   │   ├── mod.ts
 │   │   ├── deno.json
@@ -69,6 +73,7 @@ mcp-server/                  # repo root (Deno workspace)
 deno task test
 
 # Run tests for a specific package
+cd packages/platform && deno task test
 cd packages/server && deno task test
 cd packages/compose && deno task test
 cd packages/view-contracts && deno task test
@@ -164,9 +169,10 @@ Bridge layer for connecting MCP servers to external systems and protocols.
   routing.
 - **Dual transport**: STDIO for local/CLI usage, HTTP (Streamable HTTP + SSE)
   for remote. Auth only applies to HTTP transport.
-- **Publishing**: On push to `main`, CI publishes all 6 packages to JSR (via
-  `npx jsr publish`) and npm through package-specific dnt builds. Version for
-  each package is in its own `deno.json`.
+- **Publishing**: On push to `main`, CI publishes all 7 packages to JSR (via
+  `npx jsr publish`) and npm through package-specific builds (dnt, except
+  `platform` whose single re-export is emitted directly). Version for each
+  package is in its own `deno.json`.
 - **Browser/server split**: `@casys/mcp-view` and `@casys/mcp-view-components`
   use `lib: dom`; `@casys/mcp-view-contracts` explicitly does not. Server-side
   packages MUST NOT add DOM globals — doing so invites `document.getElementById`

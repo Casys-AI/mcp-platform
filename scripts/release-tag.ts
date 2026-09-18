@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run -A
 /**
- * Release tag helper for the @casys mcp-server monorepo.
+ * Release tag helper for the @casys mcp-platform monorepo.
  *
  * Reads the version of a workspace package from `packages/<pkg>/deno.json`,
  * verifies that the matching CHANGELOG section exists and that `[Unreleased]`
@@ -11,10 +11,11 @@
  *   deno task release:tag    (from inside packages/<pkg>/)
  *   deno run -A scripts/release-tag.ts <pkg>
  *
- * Where <pkg> is one of: server, compose, bridge, view, view-components.
+ * Where <pkg> is one of: server, compose, bridge, view, view-components,
+ * platform.
  */
 
-const PACKAGES = ["server", "compose", "bridge", "view", "view-components"] as const;
+const PACKAGES = ["server", "compose", "bridge", "view", "view-components", "platform"] as const;
 type Pkg = (typeof PACKAGES)[number];
 
 const repoRoot = new URL("..", import.meta.url).pathname;

@@ -102,7 +102,7 @@ await server.start();
 Provider repositories that expose a native stdio CLI should test their actual
 documented command, transport flags, protocol eras, stdout discipline, and EOF
 cleanup. Use the
-[native stdio provider testing guide](https://github.com/Casys-AI/mcp-server/blob/main/docs/guides/native-stdio-provider-testing.md)
+[native stdio provider testing guide](https://github.com/Casys-AI/mcp-platform/blob/main/docs/guides/native-stdio-provider-testing.md)
 as a test-only adoption kit.
 
 ### HTTP Server with Auth
@@ -146,7 +146,7 @@ await server.startHttp({ port: 3000 });
 ```
 
 See the
-[HTTP security guide](https://github.com/Casys-AI/mcp-server/blob/main/docs/guides/securing-your-http-server.md)
+[HTTP security guide](https://github.com/Casys-AI/mcp-platform/blob/main/docs/guides/securing-your-http-server.md)
 to choose between a shared static allowlist, identity-aware static credentials,
 and OIDC/JWT.
 
