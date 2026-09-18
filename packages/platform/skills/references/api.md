@@ -1,13 +1,13 @@
-# @casys/mcp-server — Full API Reference
+# @casys/mcp-platform — Full API Reference
 
-Version: 0.14.0 | JSR: `@casys/mcp-server`
+Version: 0.14.0 | JSR: `@casys/mcp-platform`
 
 ---
 
 ## McpApp class
 
 ```typescript
-import { McpApp } from "@casys/mcp-server";
+import { McpApp } from "@casys/mcp-platform";
 ```
 
 ### Constructor
@@ -490,7 +490,7 @@ These are also exported for direct use outside of `McpApp`:
 ### RateLimiter
 
 ```typescript
-import { RateLimiter } from "@casys/mcp-server";
+import { RateLimiter } from "@casys/mcp-platform";
 
 const limiter = new RateLimiter({ maxRequests: 100, windowMs: 60_000 });
 limiter.checkLimit(key: string): boolean
@@ -502,7 +502,7 @@ limiter.getMetrics(): { keys: number; totalRequests: number }
 ### RequestQueue
 
 ```typescript
-import { RequestQueue } from "@casys/mcp-server";
+import { RequestQueue } from "@casys/mcp-platform";
 
 const queue = new RequestQueue({ maxConcurrent: 5, strategy: "queue", sleepMs: 10 });
 queue.getMetrics(): QueueMetrics
@@ -511,7 +511,7 @@ queue.getMetrics(): QueueMetrics
 ### SchemaValidator
 
 ```typescript
-import { SchemaValidator } from "@casys/mcp-server";
+import { SchemaValidator } from "@casys/mcp-platform";
 
 const validator = new SchemaValidator();
 validator.addSchema(toolName: string, schema: Record<string, unknown>): void
@@ -534,7 +534,7 @@ import {
   createGoogleAuthProvider, // issuer: https://accounts.google.com
   createOIDCAuthProvider, // generic, any OIDC-compliant provider
   JwtAuthProvider, // underlying class (use presets when possible)
-} from "@casys/mcp-server";
+} from "@casys/mcp-platform";
 ```
 
 All presets accept `PresetOptions`:
@@ -553,7 +553,7 @@ Auth0 additionally requires `domain: string`. `createOIDCAuthProvider` accepts
 ### Multi-tenant auth
 
 ```typescript
-import { createMultiTenantMiddleware } from "@casys/mcp-server";
+import { createMultiTenantMiddleware } from "@casys/mcp-platform";
 
 app.use(createMultiTenantMiddleware({
   resolver: async (ctx) => ({
@@ -572,7 +572,7 @@ import {
   MCP_APP_MIME_TYPE, // "text/html;profile=mcp-app"
   MCP_APPS_EXTENSION_ID, // "io.modelcontextprotocol/ui"
   MCP_APPS_PROTOCOL_VERSION, // "2026-01-26"
-} from "@casys/mcp-server";
+} from "@casys/mcp-platform";
 ```
 
 ### getMcpAppsCapability (standalone)
@@ -583,23 +583,27 @@ getMcpAppsCapability(clientCapabilities: Record<string, unknown> | null | undefi
 
 ---
 
-## MCP Compose (re-exported)
+## MCP Compose (import from the compose SDK)
 
 ```typescript
-import { COMPOSE_EVENT_METHOD, composeEvents, uiMeta } from "@casys/mcp-server";
+import {
+  COMPOSE_EVENT_METHOD,
+  composeEvents,
+  uiMeta,
+} from "@casys/mcp-compose/sdk";
 ```
 
-`uiMeta` and `composeEvents` are re-exported from `@casys/mcp-compose/sdk` for
-convenience. See the mcp-compose skill for the full compose API.
+`uiMeta` and `composeEvents` live in `@casys/mcp-compose/sdk` — import them from
+there directly. See the mcp-compose skill for the full compose API.
 
 ---
 
 ## Security utilities
 
 ```typescript
-import { buildCspHeader, injectCspMetaTag } from "@casys/mcp-server";
-import { injectChannelAuth } from "@casys/mcp-server";
-import { MessageSigner } from "@casys/mcp-server";
+import { buildCspHeader, injectCspMetaTag } from "@casys/mcp-platform";
+import { injectChannelAuth } from "@casys/mcp-platform";
+import { MessageSigner } from "@casys/mcp-platform";
 ```
 
 ---
@@ -607,7 +611,7 @@ import { MessageSigner } from "@casys/mcp-server";
 ## Inspector
 
 ```typescript
-import { launchInspector } from "@casys/mcp-server";
+import { launchInspector } from "@casys/mcp-platform";
 
 await launchInspector({ port: 5173 });
 ```
@@ -626,7 +630,7 @@ import {
   recordAuthEvent,
   ServerMetrics,
   startToolCallSpan,
-} from "@casys/mcp-server";
+} from "@casys/mcp-platform";
 ```
 
 OTel tracing is auto-enabled when `OTEL_EXPORTER_OTLP_ENDPOINT` is set in the

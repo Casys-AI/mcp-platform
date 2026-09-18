@@ -288,10 +288,10 @@ const tools = [
 ];
 ```
 
-If your server uses `@casys/mcp-server`, the helpers are re-exported:
+If your server uses `@casys/mcp-platform`, import the helpers from the compose SDK:
 
 ```typescript
-import { composeEvents, uiMeta } from "@casys/mcp-server";
+import { composeEvents, uiMeta } from "@casys/mcp-compose/sdk";
 ```
 
 ### UI-side events with `composeEvents()`

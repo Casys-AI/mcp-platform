@@ -5,15 +5,13 @@ code in this repository.
 
 ## Project Overview
 
-This is a **monorepo** containing 7 packages that form the Casys MCP Platform:
+This is a **monorepo** containing 6 packages that form the Casys MCP Platform:
 
-- **`@casys/mcp-platform`** (`packages/platform/`) — Umbrella entry that
-  re-exports the framework under the platform name. No API of its own.
+- **`@casys/mcp-platform`** (`packages/platform/`) — A production-grade
+  framework for building MCP (Model Context Protocol) servers in TypeScript.
+  Think "Hono for MCP". Built on the official `@modelcontextprotocol/sdk`, it
+  adds middleware, auth, concurrency control, and observability.
   **Server-side.**
-- **`@casys/mcp-server`** (`packages/server/`) — A production-grade framework
-  for building MCP (Model Context Protocol) servers in TypeScript. Think "Hono
-  for MCP". Built on the official `@modelcontextprotocol/sdk`, it adds
-  middleware, auth, concurrency control, and observability. **Server-side.**
 - **`@casys/mcp-compose`** (`packages/compose/`) — Composable helper utilities
   for building MCP tools and resources with reusable primitives, plus a
   multi-iframe dashboard host. **Server-side.**
@@ -30,8 +28,8 @@ This is a **monorepo** containing 7 packages that form the Casys MCP Platform:
 - **`@casys/mcp-bridge`** (`packages/bridge/`) — Bridge layer for connecting MCP
   servers to external systems and protocols. **Server-side.**
 
-The platform/server/compose/bridge packages target Deno + Node (dual-publish);
-view and view-components target browsers via bundler (esbuild recommended — see
+The platform/compose/bridge packages target Deno + Node (dual-publish); view and
+view-components target browsers via bundler (esbuild recommended — see
 `packages/view/examples/basic/build.ts`).
 
 All packages are published to both **JSR** (`jsr:@casys/<package>`) and **npm**
@@ -43,8 +41,7 @@ All packages are published to both **JSR** (`jsr:@casys/<package>`) and **npm**
 mcp-platform/               # repo root (Deno workspace)
 ├── deno.json                # workspace config, lists all member packages
 ├── packages/
-│   ├── platform/            # @casys/mcp-platform (umbrella, re-exports server)
-│   ├── server/              # @casys/mcp-server
+│   ├── platform/            # @casys/mcp-platform
 │   │   ├── mod.ts
 │   │   ├── deno.json
 │   │   └── src/
@@ -74,7 +71,6 @@ deno task test
 
 # Run tests for a specific package
 cd packages/platform && deno task test
-cd packages/server && deno task test
 cd packages/compose && deno task test
 cd packages/view-contracts && deno task test
 cd packages/view && deno task test
@@ -82,13 +78,13 @@ cd packages/view-components && deno task test
 cd packages/bridge && deno task test
 
 # Run a single test file within a package
-cd packages/server && deno test --allow-net --allow-read --allow-write --allow-env --no-check src/<file>_test.ts
+cd packages/platform && deno test --allow-net --allow-read --allow-write --allow-env --no-check src/<file>_test.ts
 
-# Targeted test suites (packages/server)
-cd packages/server && deno task test:security    # HTTP security tests only
-cd packages/server && deno task test:http        # HTTP + security tests
+# Targeted test suites (packages/platform)
+cd packages/platform && deno task test:security    # HTTP security tests only
+cd packages/platform && deno task test:http        # HTTP + security tests
 
-# Build Node.js distribution for server (output: packages/server/dist-node/)
+# Build Node.js distribution for platform (output: packages/platform/dist-node/)
 bash scripts/build-node.sh
 ```
 
@@ -97,10 +93,10 @@ No separate lint or format task is configured — Deno's built-in `deno fmt` and
 
 ## Architecture
 
-### `@casys/mcp-server` (`packages/server/`)
+### `@casys/mcp-platform` (`packages/platform/`)
 
-Entry point is `packages/server/mod.ts` which re-exports the entire public API.
-The central class is `McpApp` in `packages/server/src/mcp-app.ts`.
+Entry point is `packages/platform/mod.ts` which re-exports the entire public
+API. The central class is `McpApp` in `packages/platform/src/mcp-app.ts`.
 (`ConcurrentMCPServer` remains exported as a `@deprecated` alias for backwards
 compatibility — it points to the same class and will be removed in v1.0.)
 
@@ -135,9 +131,9 @@ compatibility — it points to the same class and will be removed in v1.0.)
 ### `@casys/mcp-compose` (`packages/compose/`)
 
 Composable helpers for assembling MCP tools and resources from reusable
-primitives, plus a multi-iframe dashboard host. Re-exported by
-`@casys/mcp-server` for convenience. Server-side only (Deno/Node), no DOM types
-in `compilerOptions.lib`.
+primitives, plus a multi-iframe dashboard host. Imported directly from
+`@casys/mcp-compose/sdk` where needed (the framework does not re-export them).
+Server-side only (Deno/Node), no DOM types in `compilerOptions.lib`.
 
 ### `@casys/mcp-view` (`packages/view/`)
 
@@ -164,15 +160,14 @@ Bridge layer for connecting MCP servers to external systems and protocols.
 - **Test convention**: `*_test.ts` files colocated with source. Uses Deno's
   native test runner with `@std/assert`.
 - **Node.js compatibility**: `scripts/build-node.sh` copies
-  `packages/server/src` to `dist-node/`, swaps the runtime adapter, and remaps
+  `packages/platform/src` to `dist-node/`, swaps the runtime adapter, and remaps
   Deno imports to npm equivalents. The HTTP layer uses Hono for portable
   routing.
 - **Dual transport**: STDIO for local/CLI usage, HTTP (Streamable HTTP + SSE)
   for remote. Auth only applies to HTTP transport.
-- **Publishing**: On push to `main`, CI publishes all 7 packages to JSR (via
-  `npx jsr publish`) and npm through package-specific builds (dnt, except
-  `platform` whose single re-export is emitted directly). Version for each
-  package is in its own `deno.json`.
+- **Publishing**: On push to `main`, CI publishes all 6 packages to JSR (via
+  `npx jsr publish`) and npm through package-specific dnt builds. Version for
+  each package is in its own `deno.json`.
 - **Browser/server split**: `@casys/mcp-view` and `@casys/mcp-view-components`
   use `lib: dom`; `@casys/mcp-view-contracts` explicitly does not. Server-side
   packages MUST NOT add DOM globals — doing so invites `document.getElementById`

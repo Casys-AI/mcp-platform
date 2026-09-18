@@ -1,15 +1,15 @@
 ---
 name: casys-mcp-server
 description: >
-  Reference skill for @casys/mcp-server. Trigger when the user imports
-  @casys/mcp-server, builds or extends an MCP server, registers tools or resources,
+  Reference skill for @casys/mcp-platform. Trigger when the user imports
+  @casys/mcp-platform, builds or extends an MCP server, registers tools or resources,
   configures auth (Google, Auth0, GitHub, OIDC), adds middleware, sets up HTTP or
   STDIO transport, embeds an MCP server in Hono/Fresh/Express, or works with MCP Apps
   (ui:// resources, SEP-1865). Also trigger for concurrency/backpressure tuning,
   rate limiting, schema validation, or observability on MCP servers.
 ---
 
-# @casys/mcp-server
+# @casys/mcp-platform
 
 Hono-style framework for MCP servers. Wraps `@modelcontextprotocol/sdk` with a
 middleware pipeline, auth, concurrency control, and HTTP transport.
@@ -22,14 +22,14 @@ middleware pipeline, auth, concurrency control, and HTTP transport.
 
 ```sh
 # Deno
-deno add jsr:@casys/mcp-server
+deno add jsr:@casys/mcp-platform
 
 # Node / npm
-npx jsr add @casys/mcp-server
+npx jsr add @casys/mcp-platform
 ```
 
 ```typescript
-import { McpApp } from "@casys/mcp-server";
+import { McpApp } from "@casys/mcp-platform";
 ```
 
 > `ConcurrentMCPServer` is an alias kept for backwards compatibility. Use
@@ -221,7 +221,7 @@ import {
   createGitHubAuthProvider,
   createGoogleAuthProvider,
   createOIDCAuthProvider,
-} from "@casys/mcp-server";
+} from "@casys/mcp-platform";
 
 // Google
 const provider = createGoogleAuthProvider({
@@ -288,7 +288,7 @@ app.registerResources(resources: MCPResource[], handlers: Map<string, ResourceHa
 ```
 
 ```typescript
-import { MCP_APP_MIME_TYPE } from "@casys/mcp-server";
+import { MCP_APP_MIME_TYPE } from "@casys/mcp-platform";
 
 app.registerResource(
   { uri: "ui://my-server/viewer", name: "Viewer", mimeType: MCP_APP_MIME_TYPE },
@@ -345,7 +345,7 @@ OTel tracing is auto-enabled if `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 ### Minimal STDIO server
 
 ```typescript
-import { McpApp } from "@casys/mcp-server";
+import { McpApp } from "@casys/mcp-platform";
 
 const app = new McpApp({ name: "my-server", version: "1.0.0" });
 
@@ -364,7 +364,7 @@ await app.start();
 ### HTTP server with Google auth
 
 ```typescript
-import { createGoogleAuthProvider, McpApp } from "@casys/mcp-server";
+import { createGoogleAuthProvider, McpApp } from "@casys/mcp-platform";
 
 const app = new McpApp({
   name: "my-server",

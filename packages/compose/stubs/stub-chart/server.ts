@@ -5,7 +5,7 @@
  * @module stubs/stub-chart
  */
 
-import { McpApp } from "@casys/mcp-server";
+import { McpApp } from "@casys/mcp-platform";
 import { buildStubHtml, MCP_APP_MIME_TYPE, startStubServer } from "../shared.ts";
 
 const MOCK_DATA = [

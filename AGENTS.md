@@ -5,16 +5,15 @@ this repository.
 
 ## Project Overview
 
-This repo is the **Casys MCP Platform** monorepo (7 workspace packages under
-`packages/` — `platform`, `server`, `compose`, `bridge`, `view-contracts`,
-`view`, `view-components`). Its flagship is `@casys/mcp-server` — a
-production-grade framework for building MCP (Model Context Protocol) servers in
-TypeScript. Think "Hono for MCP". Built on the official
-`@modelcontextprotocol/sdk`, it adds middleware, auth, concurrency control, and
-observability.
+This repo is the **Casys MCP Platform** monorepo (6 workspace packages under
+`packages/` — `platform`, `compose`, `bridge`, `view-contracts`, `view`,
+`view-components`). Its flagship is `@casys/mcp-platform` — a production-grade
+framework for building MCP (Model Context Protocol) servers in TypeScript. Think
+"Hono for MCP". Built on the official `@modelcontextprotocol/sdk`, it adds
+middleware, auth, concurrency control, and observability.
 
-Published to both **JSR** (`jsr:@casys/mcp-server`) and **npm**
-(`@casys/mcp-server`).
+Published to both **JSR** (`jsr:@casys/mcp-platform`) and **npm**
+(`@casys/mcp-platform`).
 
 ## Commands
 
@@ -86,12 +85,11 @@ class and will be removed in v1.0.)
   for remote. Auth only applies to HTTP transport.
 - **Publishing**: On push to `main`, `.github/workflows/publish.yml` publishes
   every workspace member to JSR (`npx jsr publish` skips already-published
-  versions) and all seven to npm (`platform`, `server`, `compose`, `bridge`,
-  `view-contracts`, `view`, and `view-components`; dnt builds, except `platform`
-  whose single re-export is emitted directly). Each npm job is idempotent: it
-  queries `npm view <pkg>@<ver>` before publishing, so repeated runs without a
-  version bump exit cleanly instead of masking auth/build/network failures
-  behind `|| echo`.
+  versions) and all six to npm (`platform`, `compose`, `bridge`,
+  `view-contracts`, `view`, and `view-components` via dnt). Each npm job is
+  idempotent: it queries `npm view <pkg>@<ver>` before publishing, so repeated
+  runs without a version bump exit cleanly instead of masking auth/build/network
+  failures behind `|| echo`.
 
 ## Release process
 

@@ -1,24 +1,17 @@
 /**
  * Build @casys/mcp-platform as native ESM JavaScript for npm.
  *
- * Unlike the other workspace packages this build does NOT use dnt: dnt cannot
- * externalize an import-mapped `jsr:` dependency (its `mappings` lookup misses
- * once the bare specifier resolves through the import map, and the default is
- * to bundle the whole framework into the umbrella — duplicating it for any
- * consumer that also installs `@casys/mcp-server`). The umbrella entry is a
- * single re-export, so this script emits it directly and declares the
- * framework as a real npm dependency instead.
+ * Deno remains the canonical source/runtime. dnt translates the same public
+ * entry point, import map, and runtime selector into JavaScript plus declaration
+ * files that a stock Node process can load without a TypeScript loader.
  */
 
-const FRAMEWORK_NPM_RANGE = "^0.27.0";
+import { build, emptyDir } from "@deno/dnt";
 
 const denoJsonText = await Deno.readTextFile(
   new URL("../deno.json", import.meta.url),
 );
-const denoJson = JSON.parse(denoJsonText) as {
-  version?: string;
-  imports?: Record<string, string>;
-};
+const denoJson = JSON.parse(denoJsonText) as { version?: string };
 const version = denoJson.version;
 if (!version) {
   throw new Error(
@@ -26,67 +19,69 @@ if (!version) {
   );
 }
 
-// The JSR range in deno.json and the npm range emitted here must track the
-// same framework minor — fail loudly instead of publishing a skewed umbrella.
-// Patch drift inside the minor self-resolves through the ^ ranges on both
-// registries, so only the minor is compared.
-const jsrSpecifier = denoJson.imports?.["@casys/mcp-server"];
-const jsrMinor = jsrSpecifier?.match(/^jsr:@casys\/mcp-server@\^(\d+\.\d+)\./)?.[1];
-const npmMinor = FRAMEWORK_NPM_RANGE.match(/^\^(\d+\.\d+)\./)?.[1];
-if (!jsrMinor || jsrMinor !== npmMinor) {
-  throw new Error(
-    `[build-npm] framework range skew: deno.json has ${jsrSpecifier}, ` +
-      `npm range is ${FRAMEWORK_NPM_RANGE}`,
-  );
-}
-
 console.log(`[build-npm] Version: ${version}`);
-await Deno.remove("./dist-node", { recursive: true }).catch((error) => {
-  if (!(error instanceof Deno.errors.NotFound)) throw error;
-});
-await Deno.mkdir("./dist-node/esm", { recursive: true });
+await emptyDir("./dist-node");
 
-const entry = 'export * from "@casys/mcp-server";\n';
-await Deno.writeTextFile("./dist-node/esm/mod.js", entry);
-await Deno.writeTextFile("./dist-node/esm/mod.d.ts", entry);
-
-const packageJson = {
-  name: "@casys/mcp-platform",
-  version,
-  // ESM-only output: without this, Node <20.19 parses esm/*.js as CommonJS
-  // and the re-export breaks (engines floor is >=20).
-  type: "module",
-  description:
-    "Umbrella entry for the Casys MCP Platform — re-exports the @casys/mcp-server framework",
-  license: "MIT",
-  repository: {
-    type: "git",
-    url: "git+https://github.com/Casys-AI/mcp-platform.git",
+await build({
+  entryPoints: ["./mod.ts"],
+  outDir: "./dist-node",
+  shims: {
+    deno: false,
   },
-  keywords: [
-    "mcp",
-    "model-context-protocol",
-    "platform",
-    "framework",
-  ],
-  engines: {
-    node: ">=20.0.0",
-  },
-  dependencies: {
-    "@casys/mcp-server": FRAMEWORK_NPM_RANGE,
-  },
-  main: "./esm/mod.js",
-  types: "./esm/mod.d.ts",
-  exports: {
-    ".": {
-      types: "./esm/mod.d.ts",
-      import: "./esm/mod.js",
+  package: {
+    name: "@casys/mcp-platform",
+    version,
+    description:
+      "Production-ready MCP server framework with concurrency control, auth, and observability",
+    license: "MIT",
+    repository: {
+      type: "git",
+      url: "git+https://github.com/Casys-AI/mcp-platform.git",
+    },
+    keywords: [
+      "mcp",
+      "model-context-protocol",
+      "server",
+      "middleware",
+      "oauth",
+      "observability",
+    ],
+    engines: {
+      node: ">=20.0.0",
     },
   },
-  files: ["esm", "README.md", "LICENSE", "CHANGELOG.md"],
+  compilerOptions: {
+    lib: ["ES2022", "DOM", "DOM.Iterable"],
+    target: "ES2022",
+  },
+  // The Deno release preflight type-checks the canonical source. dnt's job is
+  // translation, including the inactive Deno adapter in the runtime selector.
+  typeCheck: false,
+  test: false,
+  importMap: "./deno.json",
+  // runtime.ts uses top-level await to load exactly one host adapter. A CJS
+  // output cannot represent that contract, so npm intentionally ships ESM.
+  scriptModule: false,
+});
+
+const packageJsonPath = "dist-node/package.json";
+const packageJson = JSON.parse(
+  await Deno.readTextFile(packageJsonPath),
+) as Record<string, unknown>;
+packageJson.main = "./esm/mod.js";
+// ESM-only output (scriptModule: false): without this, Node <20.19 parses
+// esm/*.js as CommonJS and every import breaks (engines floor is >=20).
+packageJson.type = "module";
+packageJson.types = "./esm/mod.d.ts";
+packageJson.exports = {
+  ".": {
+    types: "./esm/mod.d.ts",
+    import: "./esm/mod.js",
+  },
 };
+packageJson.files = ["esm", "README.md", "LICENSE", "CHANGELOG.md"];
 await Deno.writeTextFile(
-  "dist-node/package.json",
+  packageJsonPath,
   `${JSON.stringify(packageJson, null, 2)}\n`,
 );
 

@@ -26,77 +26,6 @@ jobs:
         # Publishes all workspace members whose version isn't already on JSR.
         # Already-published versions are skipped automatically.
 
-  publish-npm-server:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-      - name: Verify npm credentials
-        # Runs BEFORE the version check below, deliberately. That check exits 0
-        # when the version is already published — so on a run where nothing needs
-        # publishing, a dead NPM_TOKEN is never exercised and the job goes green.
-        # That is not hypothetical: the token was invalid for two weeks while
-        # every run passed, because no version happened to move.
-        # `npm whoami` fails on a bad token regardless of what is published.
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          # One call, reused. Note this proves the token authenticates, not that
-          # it carries publish rights on this scope — npm has no cheap check for
-          # that. It still separates "nothing to publish" from "cannot publish",
-          # which the version check below cannot do.
-          if ! WHO=$(npm whoami --registry https://registry.npmjs.org 2>&1); then
-            echo "::error::NPM_TOKEN did not authenticate: ${WHO}"
-            echo "If this is a credential failure, note npm answers 404 (not 401)"
-            echo "on a scoped package, so a later publish would look like a"
-            echo "missing package rather than an auth problem."
-            exit 1
-          fi
-          echo "npm authenticated as ${WHO}"
-      - name: Build and publish @casys/mcp-server to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd packages/server
-          deno task build:npm
-
-          PACK_DIR=$(mktemp -d)
-          TARBALL_NAME=$(npm pack ./dist-node --pack-destination "$PACK_DIR" --json | node -p 'JSON.parse(require("fs").readFileSync(0, "utf8"))[0].filename')
-          TARBALL="$PACK_DIR/$TARBALL_NAME"
-          tar -tzf "$TARBALL" | grep -Fx 'package/LICENSE' >/dev/null
-
-          CONSUMER_DIR=$(mktemp -d)
-          (
-            cd "$CONSUMER_DIR"
-            npm init --yes >/dev/null
-            npm pkg set type=module
-            npm install --ignore-scripts --no-audit --no-fund "$TARBALL" typescript@5.9.3 @types/node@22
-          )
-
-          npx --yes node@20 scripts/smoke-node.mjs "$CONSUMER_DIR/node_modules/@casys/mcp-server/esm/mod.js"
-          node scripts/smoke-node.mjs "$CONSUMER_DIR/node_modules/@casys/mcp-server/esm/mod.js"
-          cp scripts/smoke-node-consumer.ts "$CONSUMER_DIR/smoke-node-consumer.ts"
-          (
-            cd "$CONSUMER_DIR"
-            node --input-type=module --eval 'const pkg = await import("@casys/mcp-server"); if (typeof pkg.McpApp !== "function") throw new Error("package export missing")'
-            npx tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM,DOM.Iterable smoke-node-consumer.ts
-          )
-
-          npm publish ./dist-node --dry-run --access public
-          PKG_NAME=$(node -p "require('./dist-node/package.json').name")
-          PKG_VERSION=$(node -p "require('./dist-node/package.json').version")
-          if npm view "${PKG_NAME}@${PKG_VERSION}" version >/dev/null 2>&1; then
-            echo "Already published: ${PKG_NAME}@${PKG_VERSION} — skipping"
-            exit 0
-          fi
-          npm publish ./dist-node --access public
-
   publish-npm-compose:
     runs-on: ubuntu-latest
     steps:
@@ -245,12 +174,10 @@ jobs:
           TARBALL_NAME=$(npm pack ./dist-node --pack-destination "$PACK_DIR" --json | node -p 'JSON.parse(require("fs").readFileSync(0, "utf8"))[0].filename')
           TARBALL="$PACK_DIR/$TARBALL_NAME"
           tar -tzf "$TARBALL" | grep -Fx 'package/LICENSE' >/dev/null
-          tar -tzf "$TARBALL" | grep -Fx 'package/README.md' >/dev/null
-          tar -tzf "$TARBALL" | grep -Fx 'package/CHANGELOG.md' >/dev/null
           # ESM-only output: without "type": "module" the .js entry parses as
-          # CommonJS on Node <20.19 (engines floor is >=20). Node 22+ silently
-          # detects the module syntax, so assert the field instead of relying
-          # on the import smoke test below.
+          # CommonJS on Node <20.19 (engines floor is >=20). The node@20 smoke
+          # run below cannot catch it (latest 20.x detects module syntax), so
+          # assert the field directly.
           node -p "require('./dist-node/package.json').type" | grep -Fx 'module' >/dev/null
 
           CONSUMER_DIR=$(mktemp -d)
@@ -258,19 +185,25 @@ jobs:
             cd "$CONSUMER_DIR"
             npm init --yes >/dev/null
             npm pkg set type=module
-            # Installs the tarball plus its @casys/mcp-server dependency from
-            # the registry — this validates the dependency wiring end to end.
-            npm install --ignore-scripts --no-audit --no-fund "$TARBALL"
-            node --input-type=module --eval 'const pkg = await import("@casys/mcp-platform"); if (typeof pkg.McpApp !== "function") throw new Error("umbrella re-export missing")'
+            npm install --ignore-scripts --no-audit --no-fund "$TARBALL" typescript@5.9.3 @types/node@22
           )
 
+          npx --yes node@20 scripts/smoke-node.mjs "$CONSUMER_DIR/node_modules/@casys/mcp-platform/esm/mod.js"
+          node scripts/smoke-node.mjs "$CONSUMER_DIR/node_modules/@casys/mcp-platform/esm/mod.js"
+          cp scripts/smoke-node-consumer.ts "$CONSUMER_DIR/smoke-node-consumer.ts"
+          (
+            cd "$CONSUMER_DIR"
+            node --input-type=module --eval 'const pkg = await import("@casys/mcp-platform"); if (typeof pkg.McpApp !== "function") throw new Error("package export missing")'
+            npx tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM,DOM.Iterable smoke-node-consumer.ts
+          )
+
+          npm publish ./dist-node --dry-run --access public
           PKG_NAME=$(node -p "require('./dist-node/package.json').name")
           PKG_VERSION=$(node -p "require('./dist-node/package.json').version")
           if npm view "${PKG_NAME}@${PKG_VERSION}" version >/dev/null 2>&1; then
             echo "Already published: ${PKG_NAME}@${PKG_VERSION} — skipping"
             exit 0
           fi
-          npm publish ./dist-node --dry-run --access public
           npm publish ./dist-node --access public
 
   publish-npm-view-family:
