@@ -41,10 +41,10 @@ Deno.test("result-viewer scaffold creates a standalone component project", async
 
     const configPath = join(target, "deno.json");
     const generatedConfig = await Deno.readTextFile(configPath);
-    assertStringIncludes(generatedConfig, '"@casys/mcp-view": "jsr:@casys/mcp-view@0.9.4"');
+    assertStringIncludes(generatedConfig, '"@casys/mcp-view": "jsr:@casys/mcp-view@0.9.5"');
     assertStringIncludes(
       generatedConfig,
-      '"@casys/mcp-view-components": "jsr:@casys/mcp-view-components@0.9.1"',
+      '"@casys/mcp-view-components": "jsr:@casys/mcp-view-components@0.9.2"',
     );
     assertStringIncludes(generatedConfig, '"minimumDependencyAge"');
     assertStringIncludes(generatedConfig, '"jsr:@casys/mcp-view-components"');
@@ -55,9 +55,9 @@ Deno.test("result-viewer scaffold creates a standalone component project", async
     await Deno.writeTextFile(
       configPath,
       generatedConfig
-        .replace("jsr:@casys/mcp-view@0.9.4", coreModule)
-        .replace("jsr:@casys/mcp-view-components@0.9.1/surface", surfaceModule)
-        .replace("jsr:@casys/mcp-view-components@0.9.1", componentsModule),
+        .replace("jsr:@casys/mcp-view@0.9.5", coreModule)
+        .replace("jsr:@casys/mcp-view-components@0.9.2/surface", surfaceModule)
+        .replace("jsr:@casys/mcp-view-components@0.9.2", componentsModule),
     );
 
     // A bare path is accepted where the fleet passes file URLs; /surface is derived from it.

@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-09-18
+
+### Changed
+
+- Track `@casys/mcp-view@0.9.5` in the packaged dependency range and generated-viewer pins. No code
+  changes.
+
 ## [0.9.1] - 2026-09-18
 
 ### Fixed
