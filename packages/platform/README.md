@@ -6,7 +6,8 @@
 
 Umbrella entry for the **Casys MCP Platform**. It re-exports the framework
 ([`@casys/mcp-server`](https://github.com/Casys-AI/mcp-platform/blob/main/packages/server/README.md))
-so new consumers can install the platform under its own name. Both entries expose the exact same API.
+so new consumers can install the platform under its own name. Both entries expose the exact same
+API.
 
 ```bash
 # npm
@@ -23,7 +24,8 @@ const server = new McpApp({ name: "my-server", version: "1.0.0" });
 await server.start();
 ```
 
-See [`@casys/mcp-server`](https://github.com/Casys-AI/mcp-platform/blob/main/packages/server/README.md)
+See
+[`@casys/mcp-server`](https://github.com/Casys-AI/mcp-platform/blob/main/packages/server/README.md)
 for the full documentation and API reference.
 
 ## Versioning
