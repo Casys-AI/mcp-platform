@@ -8,6 +8,21 @@ the project adheres to
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-19
+
+### Changed
+
+- Refresh the companion-package documentation and npm repository metadata for
+  the canonical `@casys/mcp-platform` name and renamed `Casys-AI/mcp-platform`
+  repository. Existing `@casys/mcp-server` consumers remain supported through
+  the deprecated compatibility alias.
+
+### Fixed
+
+- Include `README.md`, `LICENSE`, and `CHANGELOG.md` in the generated npm
+  package so the published tarball carries its usage guidance, licence, and
+  release history alongside the runtime files.
+
 ## [0.3.0] - 2026-05-19
 
 ### Added

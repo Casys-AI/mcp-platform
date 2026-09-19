@@ -1,6 +1,6 @@
 {
   "name": "@casys/mcp-server",
-  "version": "0.27.1",
+  "version": "0.27.2",
   "license": "MIT",
   "exports": "./mod.ts",
   "publish": {
@@ -29,6 +29,7 @@
     }
   },
   "imports": {
+    "@casys/mcp-platform": "jsr:@casys/mcp-platform@^0.28.0",
     "@std/assert": "jsr:@std/assert@^1.0.0"
   }
 }

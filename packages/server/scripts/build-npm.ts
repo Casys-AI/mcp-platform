@@ -8,16 +8,33 @@
  * declares the framework as a real npm dependency instead.
  */
 
-const FRAMEWORK_NPM_RANGE = "^0.28.0";
-
 const denoJsonText = await Deno.readTextFile(
   new URL("../deno.json", import.meta.url),
 );
-const denoJson = JSON.parse(denoJsonText) as { version?: string };
+const denoJson = JSON.parse(denoJsonText) as {
+  version?: string;
+  imports?: Record<string, string>;
+};
 const version = denoJson.version;
 if (!version) {
   throw new Error(
     "[build-npm] failed to read version from packages/server/deno.json",
+  );
+}
+
+// Keep the compatibility umbrella's JSR and npm dependency floors identical.
+// Deno publishes this explicit workspace import range to JSR; the npm build
+// derives its dependency from the same value instead of maintaining a second
+// version constant that can drift.
+const platformJsrSpecifier = denoJson.imports?.["@casys/mcp-platform"];
+const frameworkRangeMatch = platformJsrSpecifier?.match(
+  /^jsr:@casys\/mcp-platform@(\^\d+\.\d+\.\d+)$/,
+);
+const frameworkNpmRange = frameworkRangeMatch?.[1];
+if (!frameworkNpmRange) {
+  throw new Error(
+    "[build-npm] packages/server/deno.json must map @casys/mcp-platform " +
+      "to an explicit jsr:^semver range",
   );
 }
 
@@ -28,11 +45,11 @@ const platformDenoJson = JSON.parse(
   await Deno.readTextFile(new URL("../../platform/deno.json", import.meta.url)),
 ) as { version?: string };
 const platformMinor = platformDenoJson.version?.match(/^(\d+\.\d+)\./)?.[1];
-const npmMinor = FRAMEWORK_NPM_RANGE.match(/^\^(\d+\.\d+)\./)?.[1];
+const npmMinor = frameworkNpmRange.match(/^\^(\d+\.\d+)\./)?.[1];
 if (!platformMinor || platformMinor !== npmMinor) {
   throw new Error(
     `[build-npm] framework skew: workspace platform is ${platformDenoJson.version}, ` +
-      `npm range is ${FRAMEWORK_NPM_RANGE}`,
+      `alias range is ${frameworkNpmRange}`,
   );
 }
 
@@ -67,7 +84,7 @@ const packageJson = {
     node: ">=20.0.0",
   },
   dependencies: {
-    "@casys/mcp-platform": FRAMEWORK_NPM_RANGE,
+    "@casys/mcp-platform": frameworkNpmRange,
   },
   // npm surfaces this on install and on `npm view`: the rename notice reaches
   // consumers at the moment they depend on the old name.

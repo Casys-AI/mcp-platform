@@ -1,22 +1,42 @@
 ---
 name: casys-mcp-server
 description: >
-  Reference skill for @casys/mcp-platform. Trigger when the user imports
-  @casys/mcp-platform, builds or extends an MCP server, registers tools or resources,
-  configures auth (Google, Auth0, GitHub, OIDC), adds middleware, sets up HTTP or
-  STDIO transport, embeds an MCP server in Hono/Fresh/Express, or works with MCP Apps
-  (ui:// resources, SEP-1865). Also trigger for concurrency/backpressure tuning,
+  Reference skill for Casys MCP Platform (@casys/mcp-platform) and its deprecated
+  @casys/mcp-server compatibility package. Trigger when the user imports either
+  package, builds or extends an MCP server, registers tools or resources, configures
+  auth (Google, Auth0, GitHub, OIDC), adds middleware, sets up HTTP or STDIO transport,
+  embeds an MCP server in Hono/Fresh/Express, or works with MCP Apps (ui:// resources,
+  SEP-1865). Also trigger for package migration, concurrency/backpressure tuning,
   rate limiting, schema validation, or observability on MCP servers.
 ---
 
-# @casys/mcp-platform
+# Casys MCP Platform (`@casys/mcp-platform`)
 
 Hono-style framework for MCP servers. Wraps `@modelcontextprotocol/sdk` with a
 middleware pipeline, auth, concurrency control, and HTTP transport.
 
-- **Runtime**: Deno 2+ or Node 20+ (published to JSR)
+- **Runtime**: Deno 2+ or Node 20+
+- **Registries**: JSR and npm
 - **License**: MIT
 - **Depends on**: `@modelcontextprotocol/sdk@^1.29.0`, `hono@^4`, `jose@^6`
+
+## Identity and compatibility
+
+- `@casys/mcp-platform` is the canonical framework package. Use it for new code
+  and current product naming.
+- `@casys/mcp-server` is the deprecated compatibility package. It re-exports the
+  platform API unchanged so existing imports can keep working.
+- `ConcurrentMCPServer` is a deprecated class alias of `McpApp`; this is
+  separate from the package-level compatibility alias.
+- The frontmatter name intentionally remains `casys-mcp-server`. The skill
+  format has no supported alias field, so renaming it would silently break
+  existing `$casys-mcp-server` invocations. Treat that name only as an
+  invocation compatibility shim and use Casys MCP Platform in generated code and
+  prose.
+
+Do not rewrite a project's legacy imports unless the user asks for the package
+migration. When migrating, change the package/import name without implying an
+API rewrite.
 
 ## Installation
 
@@ -25,15 +45,12 @@ middleware pipeline, auth, concurrency control, and HTTP transport.
 deno add jsr:@casys/mcp-platform
 
 # Node / npm
-npx jsr add @casys/mcp-platform
+npm install @casys/mcp-platform
 ```
 
 ```typescript
 import { McpApp } from "@casys/mcp-platform";
 ```
-
-> `ConcurrentMCPServer` is an alias kept for backwards compatibility. Use
-> `McpApp`.
 
 ---
 

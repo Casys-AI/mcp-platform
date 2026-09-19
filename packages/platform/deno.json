@@ -1,6 +1,6 @@
 {
   "name": "@casys/mcp-platform",
-  "version": "0.28.0",
+  "version": "0.28.1",
   "license": "MIT",
   "exports": {
     ".": "./mod.ts"
@@ -11,12 +11,12 @@
   },
   "tasks": {
     "build:npm": "deno run -A scripts/build-npm.ts",
-    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-run --no-check src/",
+    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-run --no-check src/ api-surface_test.ts",
     "test:security": "deno test --allow-net --allow-read --allow-env --no-check src/http-security_test.ts",
     "test:http": "deno test --allow-net --allow-read --allow-env --no-check src/http-server_test.ts src/http-security_test.ts",
     "changelog:draft": "git -C ../.. cliff --config cliff.toml --tag-pattern 'platform-v.*' --include-path 'packages/platform/**' --unreleased",
     "publish:check": "deno publish --dry-run --allow-dirty",
-    "release:check": "deno check mod.ts src/ && deno task test && deno task publish:check",
+    "release:check": "deno check mod.ts src/ api-surface_test.ts && deno task test && deno task publish:check",
     "release:tag": "deno run -A ../../scripts/release-tag.ts platform"
   },
   "imports": {

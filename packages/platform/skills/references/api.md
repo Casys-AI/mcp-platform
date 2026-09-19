@@ -1,6 +1,11 @@
 # @casys/mcp-platform — Full API Reference
 
-Version: 0.14.0 | JSR: `@casys/mcp-platform`
+Canonical package: `@casys/mcp-platform` (JSR and npm)
+
+Compatibility package: `@casys/mcp-server` (deprecated re-export)
+
+This reference intentionally does not pin a package version. Use the installed
+package, lockfile, or package manifest as the version authority.
 
 ---
 
@@ -634,4 +639,4 @@ import {
 ```
 
 OTel tracing is auto-enabled when `OTEL_EXPORTER_OTLP_ENDPOINT` is set in the
-environment. The tracer name is `casys-mcp-server`.
+environment. The tracer name is `mcp.server` (instrumentation version `0.8.0`).

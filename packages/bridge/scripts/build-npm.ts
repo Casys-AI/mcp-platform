@@ -103,6 +103,10 @@ pkg.exports = {
 };
 await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 
+for (const asset of ["README.md", "LICENSE", "CHANGELOG.md"] as const) {
+  await Deno.copyFile(asset, `dist-node/${asset}`);
+}
+
 await smokeTestNetworkAdapterSubpath();
 
 console.log("\n[build-npm] Done. Output in ./dist-node/");

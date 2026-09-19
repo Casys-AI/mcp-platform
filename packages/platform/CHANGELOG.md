@@ -4,6 +4,25 @@ All notable changes to `@casys/mcp-platform` will be documented in this file.
 
 ## [Unreleased]
 
+## [0.28.1] — 2026-09-19
+
+### Fixed
+
+- The release pre-flight now type-checks and runs `api-surface_test.ts`. That
+  test exercises the covered Tasks, MRTR, and subscription entry points through
+  the public `mod.ts`, guarding those exports against becoming unreachable to
+  published-package consumers.
+
+### Documentation
+
+- Clarified that `startHttp()` is stateless Streamable HTTP: it accepts MCP
+  requests over `POST`, does not create session IDs, and does not expose the
+  legacy SSE `GET` stream. The OpenTelemetry example now reflects the same
+  contract instead of showing a session attribute the transport does not emit.
+- Added a short guide to the companion packages and linked the complete
+  `@casys/mcp-server` to `@casys/mcp-platform` migration. These are release and
+  documentation corrections only; the framework API and runtime are unchanged.
+
 ## [0.28.0] — 2026-09-18
 
 ### Changed
@@ -16,6 +35,18 @@ All notable changes to `@casys/mcp-platform` will be documented in this file.
   so existing imports keep working unchanged. (`0.1.0` first published the
   platform name as a one-line umbrella; this release moves the framework itself
   here.)
+
+## [0.1.0] — 2026-09-18
+
+### Added
+
+- First release of the `@casys/mcp-platform` name as an umbrella that
+  re-exported `@casys/mcp-server@^0.27.0`. It introduced no API or runtime of
+  its own, so existing framework imports and behavior remained unchanged. The
+  framework itself moved under this package in `0.28.0`.
+
+The `0.27.x` and earlier entries below are the inherited framework history,
+released under the former `@casys/mcp-server` package name.
 
 ## [0.27.0] — 2026-08-28
 

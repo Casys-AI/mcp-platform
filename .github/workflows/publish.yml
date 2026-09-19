@@ -27,6 +27,7 @@ jobs:
         # Already-published versions are skipped automatically.
 
   publish-npm-server:
+    needs: publish-npm-platform
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -85,8 +86,19 @@ jobs:
             npm pkg set type=module
             # Installs the tarball plus its @casys/mcp-platform dependency from
             # the registry — this validates the dependency wiring end to end.
-            npm install --ignore-scripts --no-audit --no-fund "$TARBALL"
+            npm install --ignore-scripts --no-audit --no-fund \
+              "$TARBALL" typescript@5.9.3 @types/node@22
             node --input-type=module --eval 'const pkg = await import("@casys/mcp-server"); if (typeof pkg.McpApp !== "function") throw new Error("alias re-export missing")'
+            cp "$GITHUB_WORKSPACE/packages/server/scripts/smoke-node-consumer.ts" .
+            npx tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM,DOM.Iterable smoke-node-consumer.ts
+
+            # Also exercise the declared lower bound. The first pass above
+            # covers the newest compatible 0.28.x; this downgrade makes sure a
+            # later platform patch cannot accidentally raise the alias floor.
+            npm install --ignore-scripts --no-audit --no-fund @casys/mcp-platform@0.28.0
+            node -p 'require("./node_modules/@casys/mcp-platform/package.json").version' | grep -Fx '0.28.0' >/dev/null
+            node --input-type=module --eval 'const pkg = await import("@casys/mcp-server"); if (typeof pkg.McpApp !== "function") throw new Error("alias lower-bound re-export missing")'
+            npx tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM,DOM.Iterable smoke-node-consumer.ts
           )
 
           PKG_NAME=$(node -p "require('./dist-node/package.json').name")
@@ -269,13 +281,13 @@ jobs:
             npx tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM,DOM.Iterable smoke-node-consumer.ts
           )
 
-          npm publish ./dist-node --dry-run --access public
           PKG_NAME=$(node -p "require('./dist-node/package.json').name")
           PKG_VERSION=$(node -p "require('./dist-node/package.json').version")
           if npm view "${PKG_NAME}@${PKG_VERSION}" version >/dev/null 2>&1; then
             echo "Already published: ${PKG_NAME}@${PKG_VERSION} — skipping"
             exit 0
           fi
+          npm publish ./dist-node --dry-run --access public
           npm publish ./dist-node --access public
 
   publish-npm-view-family:

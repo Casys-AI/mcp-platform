@@ -4,6 +4,21 @@ All notable changes to `@casys/mcp-compose` will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-19
+
+### Changed
+
+- Point the example servers and npm repository metadata at the canonical `@casys/mcp-platform`
+  package and renamed `Casys-AI/mcp-platform` repository. Existing `@casys/mcp-server` imports
+  remain supported by the deprecated compatibility alias; this patch does not remove or narrow that
+  compatibility path.
+
+### Fixed
+
+- Correct the README integration example to import `composeEvents` and `uiMeta` from
+  `@casys/mcp-compose/sdk`, where those helpers are actually exported. Neither the canonical
+  framework package nor its `@casys/mcp-server` compatibility alias owns the Compose SDK surface.
+
 ## [0.9.0] - 2026-08-31
 
 ### Added

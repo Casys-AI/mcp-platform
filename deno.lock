@@ -1049,6 +1049,7 @@
       },
       "packages/server": {
         "dependencies": [
+          "jsr:@casys/mcp-platform@0.28",
           "jsr:@std/assert@1"
         ]
       },

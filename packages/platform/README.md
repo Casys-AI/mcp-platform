@@ -53,6 +53,25 @@ npm install @casys/mcp-platform
 > **Renamed in 0.28.0:** this package was previously published as
 > `@casys/mcp-server`. That name continues as a deprecated alias re-exporting
 > this package, so existing imports keep working unchanged.
+>
+> Migrate when convenient by following the
+> [package migration guide](https://github.com/Casys-AI/mcp-platform/blob/main/docs/migration/mcp-server-to-mcp-platform.md).
+
+## Which companion package should I use?
+
+Start with `@casys/mcp-platform` to build and operate an MCP server. Add a
+companion only for the boundary it owns:
+
+| Package                                                                                                     | Use it when you need to...                                                        |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [`@casys/mcp-compose`](https://github.com/Casys-AI/mcp-platform/tree/main/packages/compose)                 | Compose and synchronize multiple MCP Apps in one dashboard.                       |
+| [`@casys/mcp-bridge`](https://github.com/Casys-AI/mcp-platform/tree/main/packages/bridge)                   | Bridge MCP Apps to external hosts or route selected calls to a private network.   |
+| [`@casys/mcp-view-contracts`](https://github.com/Casys-AI/mcp-platform/tree/main/packages/view-contracts)   | Share dependency-free App, resource, composition, and recorded-session contracts. |
+| [`@casys/mcp-view`](https://github.com/Casys-AI/mcp-platform/tree/main/packages/view)                       | Build the browser-side lifecycle, routing, results, and events of an MCP App.     |
+| [`@casys/mcp-view-components`](https://github.com/Casys-AI/mcp-platform/tree/main/packages/view-components) | Add the optional presentation runtime, theme, and component kit to an MCP App.    |
+
+`@casys/mcp-server` is the compatibility alias, not a separate framework or an
+additional layer to install for new projects.
 
 ## Runtime targets
 
@@ -148,6 +167,10 @@ await server.startHttp({ port: 3000 });
 // POST /mcp      → JSON-RPC (tools/call, tools/list, ...)
 // GET  /mcp      → 405 Method Not Allowed (stateless transport)
 ```
+
+`startHttp()` serves stateless Streamable HTTP. Every `POST /mcp` request is
+self-contained: the server does not issue `Mcp-Session-Id`, keep an MCP session,
+or expose the legacy SSE stream on `GET /mcp`.
 
 See the
 [HTTP security guide](https://github.com/Casys-AI/mcp-platform/blob/main/docs/guides/securing-your-http-server.md)
@@ -361,11 +384,13 @@ Every tool call emits an **OpenTelemetry span** with rich attributes:
 mcp.tool.call query
   mcp.tool.name       = "query"
   mcp.server.name     = "my-api"
-  mcp.transport        = "http"
-  mcp.session.id       = "a1b2c3..."
+  mcp.transport       = "http"
   mcp.tool.duration_ms = 42
   mcp.tool.success     = true
 ```
+
+The built-in HTTP transport does not emit `mcp.session.id`, because it does not
+create MCP sessions.
 
 Enable with Deno's native OTEL support:
 
@@ -582,7 +607,7 @@ server.use(middleware);
 
 // Transport
 await server.start();                  // STDIO
-await server.startHttp({ port: 3000 }); // HTTP + SSE
+await server.startHttp({ port: 3000 }); // Stateless Streamable HTTP
 await server.stop();                    // Graceful shutdown
 
 // Observability
@@ -641,7 +666,9 @@ validator.validate("tool", { n: 5 }); // { valid: true, errors: [] }
 
 ## HTTP Endpoints
 
-When running with `startHttp()`:
+When running with `startHttp()`, MCP traffic is stateless and `POST`-only. A
+`GET` or `DELETE` to the MCP route returns `405 Method Not Allowed` rather than
+opening an SSE stream or managing a session:
 
 | Method | Path                                    | Description                                                 |
 | ------ | --------------------------------------- | ----------------------------------------------------------- |
